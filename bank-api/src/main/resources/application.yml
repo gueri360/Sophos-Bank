@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    hibernate.ddl-auto: create-drop
+    generate-ddl: true
+    show-sql: true
+    hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/sophos-bank
+    username: root
+    password:
+    driverClassName: com.mysql.cj.jdbc.Driver
