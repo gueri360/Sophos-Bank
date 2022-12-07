@@ -1,18 +1,23 @@
 package com.sophos.bootcamp.bankapi.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import lombok.Data;
+
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Data
 public class Transaction {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "transaction_id")
     private Long id;
-//    private Product sender;
-//    private Product recipient;
+    @ManyToOne
+    @JoinColumn(name = "sender_id",referencedColumnName = "product_id")
+    private Product sender;
+    @ManyToOne
+    @JoinColumn(name = "recipient_id",referencedColumnName = "product_id")
+    private Product recipient;
     private Date modificationDate;
     private String transactionType;
     private String description;
@@ -24,83 +29,4 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-//    public Product getSender() {
-//        return sender;
-//    }
-//
-//    public void setSender(Product sender) {
-//        this.sender = sender;
-//    }
-//
-//    public Product getRecipient() {
-//        return recipient;
-//    }
-//
-//    public void setRecipient(Product recipient) {
-//        this.recipient = recipient;
-//    }
-
-    public Date getModificationDate() {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date modificationDate) {
-        this.modificationDate = modificationDate;
-    }
-
-    public String getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(String transactionType) {
-        this.transactionType = transactionType;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Double getTransactionAmount() {
-        return transactionAmount;
-    }
-
-    public void setTransactionAmount(Double transactionAmount) {
-        this.transactionAmount = transactionAmount;
-    }
-
-    public String getMovementType() {
-        return movementType;
-    }
-
-    public void setMovementType(String movementType) {
-        this.movementType = movementType;
-    }
-
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
-
-    public Double getAvailableBalance() {
-        return availableBalance;
-    }
-
-    public void setAvailableBalance(Double availableBalance) {
-        this.availableBalance = availableBalance;
-    }
 }
