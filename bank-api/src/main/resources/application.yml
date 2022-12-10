@@ -8,5 +8,5 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/sophos-bank
     username: root
-    password:
+    password: root
     driverClassName: com.mysql.cj.jdbc.Driver
