@@ -1,0 +1,102 @@
+Clientes API
+
+	CLIENTE:
+ATRIBUTOS:
+- id
+- Tipo de identificación 
+- número de identificación 
+- nombres 
+- apellido
+- correo electrónico
+- fecha de nacimiento
+- fecha de creación
+- usuario creación = admin
+- fecha de modificación
+- usuario modificación
+
+POST: Debe permitir crear clientes cumpliendo los atributos:
+Constraint: 
+- La fecha de creación debe ser calculada automáticamente ??? Pablo me dijo que esto podia generarse automaticamente en la DBs
+- El creador predeterminado es "admin" XXX
+- Un cliente no puede ser creado si el usuario es menor de edad XXX
+
+GET: Se debe poder visualizar en una sola pantalla todos los clientes que existen en la entidad. XXX
+
+PUT: debe permitir modificar la información del cliente, Calcular fecha de modificación automáticamente ??? Deberia de poder generarse automaticamente en la DB
+
+DELETE: La aplicación debe permitir eliminar un cliente que ha sido creado
+Constraint: 
+- Un cliente no puede ser eliminado si tiene productos que no han sido cancelados
+
+
+
+
+
+
+	PRODUCTOS: 
+ATRIBUTOS:
+- id
+- tipo de cuenta 
+- número de cuenta
+- estado (activa, inactiva, cancelada) 
+- saldo 
+- saldo disponible 
+- exenta GMF
+- fecha de creación
+- usuario creación 
+- fecha modificación 
+- usuario modificación
+
+POST: La aplicación debe permitir eliminar un cliente que ha sido creado
+Constraint: 
+- Al crear una cuenta de ahorro esta debe establecerse como activa de forma
+predeterminada.
+- El número de las cuentas corrientes y de ahorros deben ser únicos y generarse 
+automáticamente, la extensión del número de cuenta debe ser de 10 dígitos 
+numéricos. El número de las cuentas ahorro debe iniciar en “46” y el número de las cuentas corriente debe iniciar en “23”
+- Un producto financiero, solo podrá existir en la base de datos si está vinculado a un
+cliente de la entidad financiera.
+- La fecha de creación de cada producto debe ser calculada automáticamente al 
+registrar el producto.
+
+GET: Se debe poder visualizar en una sola pantalla los productos por cliente con su tipo de cuenta, número de cuenta, saldo y saldo disponible
+
+PATCH: Las cuentas corrientes y de ahorros se pueden activar o inactivar en cualquier momento.
+Constraint: 
+- El saldo y saldo disponible de la cuenta deberá actualizarse al realizar cualquier 
+transacción exitosa.
+- La cuenta corriente puede sobregirarse hasta un máximo de $3.000.000.
+
+DELETE:
+Constraint:
+- Solo se podrán cancelar las cuentas que tengan un saldo inferior a $1, pero que no 
+cuente con deudas con la entidad financiera para esa cuenta. 
+
+
+
+
+
+
+	TRANSACCIONES:
+ATRIBUTOS:
+- fecha del movimiento 
+- tipo de transacción 
+- descripción
+- valor
+- tipo de movimiento (débito o crédito)
+- saldo 
+- saldo disponible
+- cuenta de recepción 
+- cuenta de envío
+
+POST: La aplicación debe permitir crear únicamente las siguientes transacciones: 
+Consignación, Retiro y Transferencia entre cuentas.
+Constraint:
+- Las transferencias solo se podrán realizar entre cuentas existentes en el sistema.
+
+GET: Se debe poder acceder a una pantalla llamada Estado de cuenta
+
+PATCH: a aplicación debe actualizar el saldo y el saldo disponible con cada transacción realizada
+Constraint:
+- Las cuentas inactivas permitirán generar movimientos crédito, pero no permitirán
+movimientos débito

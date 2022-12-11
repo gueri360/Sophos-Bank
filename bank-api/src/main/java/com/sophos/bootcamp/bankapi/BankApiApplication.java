@@ -11,8 +11,6 @@ public class BankApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BankApiApplication.class, args);
-		Product pr1 = new Product();
-		pr1.setAccountStatus(AccountStatus.INACTIVE);
 	}
 
 
