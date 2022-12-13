@@ -1,11 +1,17 @@
 package com.sophos.bootcamp.bankapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sophos.bootcamp.bankapi.entities.converters.AccountStatusConverter;
 import com.sophos.bootcamp.bankapi.entities.converters.AccountTypeConverter;
 import com.sophos.bootcamp.bankapi.entities.enums.AccountStatus;
+import com.sophos.bootcamp.bankapi.entities.enums.AccountType;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -22,11 +28,10 @@ public class Product {
 
     @Convert(converter = AccountTypeConverter.class )
     @Column(name = "account_type")
-    private String accountType;
+    private AccountType accountType;
 
     @Column(name = "account_number")
     private String accountNumber;
-
 
     @Convert(converter = AccountStatusConverter.class)
     @Column(name = "account_status")
@@ -42,9 +47,11 @@ public class Product {
     private Boolean gmfExempt;
 
     @Column(name = "creation_date")
+    @JsonFormat(pattern = "yyyy/MM/dd")
     private Date creationDate;
 
     @Column(name = "modification_date")
+    @JsonFormat(pattern = "yyyy/MM/dd")
     private Date modificationDate;
 
     @Column(name = "modification_user")

@@ -25,7 +25,9 @@ GET: Se debe poder visualizar en una sola pantalla todos los clientes que existe
 PUT: debe permitir modificar la información del cliente, Calcular fecha de modificación automáticamente ??? Deberia de poder generarse automaticamente en la DB
 
 DELETE: La aplicación debe permitir eliminar un cliente que ha sido creado
-Constraint: 
+Constraint:
+
+!!!!!!!!!!!!!!!!!!!
 - Un cliente no puede ser eliminado si tiene productos que no han sido cancelados
 
 
@@ -47,7 +49,7 @@ ATRIBUTOS:
 - fecha modificación 
 - usuario modificación
 
-POST: La aplicación debe permitir eliminar un cliente que ha sido creado
+POST: crear únicamente dos tipos de productos: cuenta corriente o cuenta de ahorros.
 Constraint: 
 - Al crear una cuenta de ahorro esta debe establecerse como activa de forma
 predeterminada.
@@ -62,9 +64,7 @@ registrar el producto.
 GET: Se debe poder visualizar en una sola pantalla los productos por cliente con su tipo de cuenta, número de cuenta, saldo y saldo disponible
 
 PATCH: Las cuentas corrientes y de ahorros se pueden activar o inactivar en cualquier momento.
-Constraint: 
-- El saldo y saldo disponible de la cuenta deberá actualizarse al realizar cualquier 
-transacción exitosa.
+Constraint:
 - La cuenta corriente puede sobregirarse hasta un máximo de $3.000.000.
 
 DELETE:
@@ -93,6 +93,8 @@ POST: La aplicación debe permitir crear únicamente las siguientes transaccione
 Consignación, Retiro y Transferencia entre cuentas.
 Constraint:
 - Las transferencias solo se podrán realizar entre cuentas existentes en el sistema.
+- El saldo y saldo disponible de la cuenta deberá actualizarse al realizar cualquier
+transacción exitosa.
 
 GET: Se debe poder acceder a una pantalla llamada Estado de cuenta
 

@@ -1,6 +1,8 @@
 package com.sophos.bootcamp.bankapi.controllers;
 
 
+import com.sophos.bootcamp.bankapi.dtos.ProductDto;
+import com.sophos.bootcamp.bankapi.dtos.UpdateProductDto;
 import com.sophos.bootcamp.bankapi.entities.Product;
 import com.sophos.bootcamp.bankapi.services.ProductService;
 import org.springframework.http.HttpStatus;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/Product")
+@RequestMapping("/product")
 public class ProductController {
 
     public final ProductService productService;
@@ -21,13 +23,12 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        if (product.getId() != null) {
-            throw new IllegalArgumentException("Do not provide an ID as it is automatically created by the system");
-        } else {
-            Product productCreated = productService.createProduct(product);
+    public ResponseEntity<Product> createProduct(@RequestBody ProductDto productDto) {
+//        if (product.getId() != null) {
+//            throw new IllegalArgumentException("Do not provide an ID as it is automatically created by the system");
+//        } else {
+            Product productCreated = productService.createProduct(productDto.mapToDomain());
             return new ResponseEntity<>(productCreated, HttpStatus.OK);
-        }
     }
 
     @GetMapping
@@ -36,11 +37,11 @@ public class ProductController {
     }
 
     @PutMapping
-    public ResponseEntity<Product> modifyProduct(@RequestBody Product product) {
+    public ResponseEntity<Product> modifyProduct(@RequestBody UpdateProductDto product) {
         if (product.getId() == null) {
             throw new IllegalArgumentException("This product isn't listed in our system");
         } else {
-            Product modifiedProduct = productService.modifyProduct(product);
+            Product modifiedProduct = productService.modifyProduct(product.mapToDomain());
             return new ResponseEntity<>(modifiedProduct, HttpStatus.OK);
         }
     }
