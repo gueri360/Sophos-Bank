@@ -33,7 +33,7 @@ public class ProductServiceImplementation implements ProductService {
 
     //TODO Create a method that looks for the account number to be unique
     @Override
-    public Product createProduct(Product product) {
+    public Product createProduct(Product product){
         product.setAccountNumber(generateAccountNumber(product.getAccountType()));
         Client findClient = clientRepository.findById(product.getAccountCreator().getId())
                 .orElseThrow(() -> new NotFoundException("Client not found"));
