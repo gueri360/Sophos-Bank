@@ -14,7 +14,5 @@ public interface ProductService {
 
     Optional<Product> getProductById(Long id);
 
-    Boolean deleteProductById (Long id);
-
     Product modifyProduct (Product product);
 }

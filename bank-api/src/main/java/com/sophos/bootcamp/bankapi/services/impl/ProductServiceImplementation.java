@@ -37,10 +37,11 @@ public class ProductServiceImplementation implements ProductService {
         product.setAccountNumber(generateAccountNumber(product.getAccountType()));
         Client findClient = clientRepository.findById(product.getAccountCreator().getId())
                 .orElseThrow(() -> new NotFoundException("Client not found"));
+//TODO validate GMF active in just one account.
 //      List<Product> byAccountCreatorId = productRepository.findByAccountCreator(product.getAccountCreator().getId());
         product.setAccountCreator(findClient);
         product.setAccountStatus(AccountStatus.ACTIVE);
-        product.setBalance(0.0);
+        product.setBalance(14000.0);
         product.setAvailableBalance(0.0);
         product.setCreationDate(new Date());
         product.setModificationDate(new Date());
@@ -59,19 +60,10 @@ public class ProductServiceImplementation implements ProductService {
     }
 
     @Override
-    public Boolean deleteProductById(Long id) {
-        return getProductById(id).map(product -> {
-            productRepository.deleteById(id);
-            return true;
-        }).orElse(false);
-
-    }
-
-    @Override
     public Product modifyProduct(Product product) {
         Product productExists = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Product is not in DBs"));
         if (CANCELLED.equals(product.getAccountStatus()) && (productExists.getBalance() < 0 || productExists.getBalance() > 1)) {
-            throw new IllegalArgumentException("Account can not be closed if Balance is under 0.0");
+            throw new BadRequestException("Account can not be closed if Balance is under 0.0");
         }
         productExists.setAccountStatus(product.getAccountStatus());
         Product modifiedProduct = productRepository.save(productExists);

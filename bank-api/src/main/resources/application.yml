@@ -1,6 +1,6 @@
 spring:
   jpa:
-    hibernate.ddl-auto: update
+    hibernate.ddl-auto: none
     generate-ddl: true
     show-sql: true
     hibernate.dialect: org.hibernate.dialect.MySQL5Dialect

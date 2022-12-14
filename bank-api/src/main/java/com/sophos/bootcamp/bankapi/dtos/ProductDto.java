@@ -40,7 +40,6 @@ public class ProductDto {
         Client clientCreator = new Client();
         clientCreator.setId(accountCreator);
         product.setAccountCreator(clientCreator);
-        product.setId(id);
         product.setAccountType(getAccountType(accountType));
         product.setGmfExempt(gmfExempt);
         product.setModificationUser("admin");

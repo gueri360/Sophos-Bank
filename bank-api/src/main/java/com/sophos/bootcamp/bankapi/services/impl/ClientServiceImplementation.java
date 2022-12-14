@@ -1,6 +1,7 @@
 package com.sophos.bootcamp.bankapi.services.impl;
 
 import com.sophos.bootcamp.bankapi.entities.Client;
+import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
 import com.sophos.bootcamp.bankapi.repositories.ClientRepository;
 import com.sophos.bootcamp.bankapi.services.ClientService;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public class ClientServiceImplementation implements ClientService {
             Client clientModified = clientRepository.save(client);
             return clientModified;
         } else {
-            throw new IllegalArgumentException("This Client is not registered in our system, please verify the id or create a Client");
+            throw new BadRequestException("This Client is not registered in our system, please verify the id or create a Client");
         }
     }
 

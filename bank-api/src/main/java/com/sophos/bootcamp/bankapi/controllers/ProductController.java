@@ -45,15 +45,4 @@ public class ProductController {
             return new ResponseEntity<>(modifiedProduct, HttpStatus.OK);
         }
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Optional<Product>> deleteProduct(@PathVariable("id") Long id){
-        if (productService.deleteProductById(id)){
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-
 }

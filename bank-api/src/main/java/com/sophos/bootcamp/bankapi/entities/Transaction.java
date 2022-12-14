@@ -2,6 +2,7 @@ package com.sophos.bootcamp.bankapi.entities;
 
 import com.sophos.bootcamp.bankapi.entities.converters.MovementTypeConverter;
 import com.sophos.bootcamp.bankapi.entities.enums.MovementType;
+import com.sophos.bootcamp.bankapi.entities.enums.TransactionType;
 import lombok.Data;
 import javax.persistence.*;
 import java.util.Date;
@@ -22,11 +23,12 @@ public class Transaction {
     @JoinColumn(name = "recipient_id",referencedColumnName = "product_id")
     private Product recipient;
 
+
     @Column(name = "modification_date")
     private Date modificationDate;
 
     @Column(name = "transaction_type")
-    private String transactionType;
+    private TransactionType transactionType;
 
     @Column(name = "description")
     private String description;
@@ -46,5 +48,4 @@ public class Transaction {
 
     public Transaction() {
     }
-
 }
