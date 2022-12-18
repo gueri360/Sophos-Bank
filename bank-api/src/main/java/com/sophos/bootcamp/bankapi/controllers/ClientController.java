@@ -1,21 +1,26 @@
 package com.sophos.bootcamp.bankapi.controllers;
 
 import com.sophos.bootcamp.bankapi.entities.Client;
+import com.sophos.bootcamp.bankapi.entities.Product;
 import com.sophos.bootcamp.bankapi.services.ClientService;
+import com.sophos.bootcamp.bankapi.services.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/client")
 public class ClientController {
 
     private final ClientService clientService;
+    private final ProductService productService;
 
-    public ClientController(ClientService clientService) {
+    public ClientController(ClientService clientService, ProductService productService) {
         this.clientService = clientService;
+        this.productService = productService;
     }
 
     @PostMapping
@@ -31,6 +36,13 @@ public class ClientController {
     public ResponseEntity<List<Client>> getAllClients() {
         return new ResponseEntity<>(clientService.getAllClients(), HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<Product>> getProductByClientId(@PathVariable Long id) {
+        List<Product> allProductsByClientId = productService.getAllProductsByClientId(id);
+        return new ResponseEntity<>(allProductsByClientId, HttpStatus.OK);
+    }
+
 
     @PutMapping
     public ResponseEntity<Client> modifyClient(@RequestBody Client client) {

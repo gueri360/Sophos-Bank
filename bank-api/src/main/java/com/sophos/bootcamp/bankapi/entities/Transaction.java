@@ -1,6 +1,7 @@
 package com.sophos.bootcamp.bankapi.entities;
 
 import com.sophos.bootcamp.bankapi.entities.converters.MovementTypeConverter;
+import com.sophos.bootcamp.bankapi.entities.converters.TransactionTypeConverter;
 import com.sophos.bootcamp.bankapi.entities.enums.MovementType;
 import com.sophos.bootcamp.bankapi.entities.enums.TransactionType;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class Transaction {
     @Column(name = "modification_date")
     private Date modificationDate;
 
+    @Convert ( converter = TransactionTypeConverter.class)
     @Column(name = "transaction_type")
     private TransactionType transactionType;
 
@@ -39,12 +41,6 @@ public class Transaction {
     @Convert ( converter = MovementTypeConverter.class)
     @Column(name = "movement_type")
     private MovementType movementType;
-
-    @Column(name = "balance")
-    private Double balance;
-
-    @Column(name = "available_balance")
-    private Double availableBalance;
 
     public Transaction() {
     }

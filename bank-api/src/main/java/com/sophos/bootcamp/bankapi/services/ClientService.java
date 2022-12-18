@@ -1,6 +1,7 @@
 package com.sophos.bootcamp.bankapi.services;
 
 import com.sophos.bootcamp.bankapi.entities.Client;
+import com.sophos.bootcamp.bankapi.entities.Product;
 
 import java.util.List;
 import java.util.Optional;

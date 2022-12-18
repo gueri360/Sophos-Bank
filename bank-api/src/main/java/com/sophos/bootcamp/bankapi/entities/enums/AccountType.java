@@ -1,7 +1,7 @@
 package com.sophos.bootcamp.bankapi.entities.enums;
 
 public enum AccountType {
-    DEBIT("DEBIT"), CHECKING("CHECKING");
+    SAVINGS("SAVINGS"), CHECKING("CHECKING");
 
     private String status;
 

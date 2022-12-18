@@ -1,8 +1,10 @@
 package com.sophos.bootcamp.bankapi.services.impl;
 
 import com.sophos.bootcamp.bankapi.entities.Client;
+import com.sophos.bootcamp.bankapi.entities.Product;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
 import com.sophos.bootcamp.bankapi.repositories.ClientRepository;
+import com.sophos.bootcamp.bankapi.repositories.ProductRepository;
 import com.sophos.bootcamp.bankapi.services.ClientService;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +12,20 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.CANCELLED;
 
 @Service
 public class ClientServiceImplementation implements ClientService {
 
     private final ClientRepository clientRepository;
+    private final ProductRepository productRepository;
 
-    public ClientServiceImplementation(ClientRepository clientRepository) {
+    public ClientServiceImplementation(ClientRepository clientRepository,
+                                       ProductRepository productRepository) {
         this.clientRepository = clientRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -28,10 +36,10 @@ public class ClientServiceImplementation implements ClientService {
     @Override
     public Client createClient(Client client) {
         if (isClientOver18Yo(client.getDateOfBirth())) {
+            client.setCreationDate(LocalDate.now());
             Client clientSaved = clientRepository.save(client);
             return clientSaved;
-        } else throw new IllegalArgumentException("Client is underage");
-
+        } else throw new BadRequestException("Client is underage");
     }
 
     @Override
@@ -50,18 +58,32 @@ public class ClientServiceImplementation implements ClientService {
         }
     }
 
+
+    //Un cliente no podrá ser eliminado si tiene productos vinculados que no se
+    //encuentren cancelados.
     @Override
     public Boolean deleteClientById(Long id) {
-        return findClientById(id).map(client -> {
+        Optional<Client> findClientById = clientRepository.findById(id);
+        if (findClientById.isPresent()) {
+            List<Product> products = productRepository.findAllByAccountCreatorId(id);
+            List<Product> cancelledProducts = products.stream()
+                    .filter((p) -> p.getAccountStatus() == CANCELLED)
+                    .collect(Collectors.toList());
+            if (products.size() != cancelledProducts.size()) {
+                throw new BadRequestException("All accounts must be cancelled before removing client");
+            }
             clientRepository.deleteById(id);
             return true;
-        }).orElse(false);
+        }
+        return false;
     }
 
-    public Boolean isClientOver18Yo(LocalDate dateOfBirth) {
+    private Boolean isClientOver18Yo(LocalDate dateOfBirth) {
         int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
         if (age >= 18) {
             return true;
         } else return false;
     }
+
+
 }

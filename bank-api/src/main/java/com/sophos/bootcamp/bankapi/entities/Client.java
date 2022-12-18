@@ -1,15 +1,10 @@
 package com.sophos.bootcamp.bankapi.entities;
 
-import java.time.LocalDate;
-import java.util.Date;
-
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.parsing.ConstructorArgumentEntry;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.Date;
 
 
 @Entity
@@ -38,10 +33,9 @@ public class Client {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-//    I will create this as one of the columns in the DB
-//    @Column
-//    (name = "creation_date")
-//    private LocalDate creationDate;
+
+    @Column(name = "creation_date")
+    private LocalDate creationDate;
 
     @Column(name = "client_creator")
     private String clientCreator;

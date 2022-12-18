@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/product")
@@ -24,7 +23,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody ProductDto productDto) {
-//        if (product.getId() != null) {
+//        if (productDto.getId() != null) {
 //            throw new IllegalArgumentException("Do not provide an ID as it is automatically created by the system");
 //        } else {
             Product productCreated = productService.createProduct(productDto.mapToDomain());

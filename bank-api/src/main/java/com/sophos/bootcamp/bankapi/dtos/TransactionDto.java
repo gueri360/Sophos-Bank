@@ -6,7 +6,6 @@ import com.sophos.bootcamp.bankapi.entities.enums.MovementType;
 import com.sophos.bootcamp.bankapi.entities.enums.TransactionType;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
 import lombok.Data;
-import java.util.Date;
 
 
 @Data

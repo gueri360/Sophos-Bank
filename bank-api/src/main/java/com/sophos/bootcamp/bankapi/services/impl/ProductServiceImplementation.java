@@ -15,10 +15,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.CANCELLED;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.CHECKING;
-import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.DEBIT;
+import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.SAVINGS;
 
 @Service
 public class ProductServiceImplementation implements ProductService {
@@ -37,11 +38,16 @@ public class ProductServiceImplementation implements ProductService {
         product.setAccountNumber(generateAccountNumber(product.getAccountType()));
         Client findClient = clientRepository.findById(product.getAccountCreator().getId())
                 .orElseThrow(() -> new NotFoundException("Client not found"));
-//TODO validate GMF active in just one account.
-//      List<Product> byAccountCreatorId = productRepository.findByAccountCreator(product.getAccountCreator().getId());
+        List<Product> byAccountCreatorId = productRepository.findAllByAccountCreatorId(product.getAccountCreator().getId());
+        boolean hasGmfActive = byAccountCreatorId.stream()
+                .filter((p) -> p.getGmfExempt().equals(true))
+                .collect(Collectors.toList()).isEmpty();
+        if(hasGmfActive){
+            product.setGmfExempt(false);
+        }
         product.setAccountCreator(findClient);
         product.setAccountStatus(AccountStatus.ACTIVE);
-        product.setBalance(14000.0);
+        product.setBalance(0.0);
         product.setAvailableBalance(0.0);
         product.setCreationDate(new Date());
         product.setModificationDate(new Date());
@@ -55,7 +61,15 @@ public class ProductServiceImplementation implements ProductService {
     }
 
     @Override
+    public List<Product> getAllProductsByClientId(Long id) {
+        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException("This client does not exist"));
+        List<Product> products = productRepository.findAllByAccountCreatorId(client.getId());
+        return products;
+    }
+
+    @Override
     public Optional<Product> getProductById(Long id) {
+        productRepository.findAllByAccountCreatorId(id);
         return productRepository.findById(id);
     }
 
@@ -63,7 +77,7 @@ public class ProductServiceImplementation implements ProductService {
     public Product modifyProduct(Product product) {
         Product productExists = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Product is not in DBs"));
         if (CANCELLED.equals(product.getAccountStatus()) && (productExists.getBalance() < 0 || productExists.getBalance() > 1)) {
-            throw new BadRequestException("Account can not be closed if Balance is under 0.0");
+            throw new BadRequestException("Account can not be closed as it has a balance");
         }
         productExists.setAccountStatus(product.getAccountStatus());
         Product modifiedProduct = productRepository.save(productExists);
@@ -83,7 +97,7 @@ public class ProductServiceImplementation implements ProductService {
     }
 
     private String generateAccountNumber(AccountType type) {
-        if (type == DEBIT) {
+        if (type == SAVINGS) {
             return getRandomNum("46");
         } else if (type == CHECKING) {
             return getRandomNum("23");
