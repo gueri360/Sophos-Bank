@@ -1,0 +1,30 @@
+<!-- id, tipo de cuenta, número de cuenta, estado (activa, inactiva, cancelada),
+saldo, saldo disponible, exenta GMF, fecha de creación, usuario creación, fecha
+modificación, usuario modificación. -->
+<div class="container">
+    <form>
+        <div class="col-md-4">
+            <label for="validationDefault01" class="form-label requested-info requested-info">Account ID</label>
+            <input type="number" class="form-control" id="validationDefault01" required>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Account status</label>
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Choose an account Status</option>
+                <option value="1">Active</option>
+                <option value="2">Inactive</option>
+                <option value="2">Cancelled</option>
+            </select>
+        </div>
+        <label for="exampleInputEmail1" class="form-label">GMF Exempt</label>
+        <div class="form-check">
+            <input type="radio" class="form-check-input" id="validationFormCheck2" name="radio-stacked">
+            <label class="form-check-label" for="validationFormCheck2">Yes</label>
+        </div>
+        <div class="form-check mb-3">
+            <input type="radio" class="form-check-input" id="validationFormCheck3" name="radio-stacked">
+            <label class="form-check-label" for="validationFormCheck3">No</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Modify account</button>
+    </form>
+</div>

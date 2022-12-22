@@ -1,0 +1,23 @@
+<div class="container">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Account type</th>
+                <th scope="col">Account number</th>
+                <th scope="col">Balance</th>
+                <th scope="col">Available balance</th>
+                <th scope="col">GMF exempt</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let product of productList"
+                [ngStyle]="{'background': product.gmfExempt == 'Yes' ? '#90DAE5' : 'white'}">
+                <th scope="row">{{product.type}}</th>
+                <td>{{product.accountNumber}}</td>
+                <td>{{product.balance}}</td>
+                <td>{{product.availableBalance}}</td>
+                <td>{{product.gmfExempt}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
