@@ -10,6 +10,7 @@ import com.sophos.bootcamp.bankapi.repositories.ClientRepository;
 import com.sophos.bootcamp.bankapi.repositories.ProductRepository;
 import com.sophos.bootcamp.bankapi.services.ProductService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -32,17 +33,15 @@ public class ProductServiceImplementation implements ProductService {
         this.clientRepository = clientRepository;
     }
 
-    //TODO Create a method that looks for the account number to be unique
     @Override
     public Product createProduct(Product product){
-        product.setAccountNumber(generateAccountNumber(product.getAccountType()));
         Client findClient = clientRepository.findById(product.getAccountCreator().getId())
                 .orElseThrow(() -> new NotFoundException("Client not found"));
         List<Product> byAccountCreatorId = productRepository.findAllByAccountCreatorId(product.getAccountCreator().getId());
         boolean hasGmfActive = byAccountCreatorId.stream()
                 .filter((p) -> p.getGmfExempt().equals(true))
                 .collect(Collectors.toList()).isEmpty();
-        if(hasGmfActive){
+        if(!hasGmfActive){
             product.setGmfExempt(false);
         }
         product.setAccountCreator(findClient);
@@ -52,6 +51,9 @@ public class ProductServiceImplementation implements ProductService {
         product.setCreationDate(new Date());
         product.setModificationDate(new Date());
         Product createdProduct = productRepository.save(product);
+        //product has to be saved twice so the generated account number can be added to Id generator requirements (uniqueness)
+        product.setAccountNumber(generateAccountNumber(product.getAccountType(), createdProduct.getId()));
+        createdProduct = productRepository.save(product);
         return createdProduct;
     }
 
@@ -66,7 +68,6 @@ public class ProductServiceImplementation implements ProductService {
         List<Product> products = productRepository.findAllByAccountCreatorId(client.getId());
         return products;
     }
-
     @Override
     public Optional<Product> getProductById(Long id) {
         productRepository.findAllByAccountCreatorId(id);
@@ -74,15 +75,40 @@ public class ProductServiceImplementation implements ProductService {
     }
 
     @Override
+    @Transactional
     public Product modifyProduct(Product product) {
-        Product productExists = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Product is not in DBs"));
+        Product productExists = productRepository.findById(product.getId()).orElseThrow(() -> new NotFoundException("Product is not in DBs"));
         if (CANCELLED.equals(product.getAccountStatus()) && (productExists.getBalance() < 0 || productExists.getBalance() > 1)) {
             throw new BadRequestException("Account can not be closed as it has a balance");
         }
         productExists.setAccountStatus(product.getAccountStatus());
+        //Validates if Client has any products with GMF exempt
+        if (product.getGmfExempt() && product.getGmfExempt() != productExists.getGmfExempt()){
+            List<Product> productsByClient = productRepository.findAllByAccountCreatorId(productExists.getAccountCreator().getId());
+            List<Product> productWithGmfExempt = productsByClient.stream()
+                    .filter(p -> p.getId() != productExists.getId())
+                    .filter(p -> p.getGmfExempt())
+                    .collect(Collectors.toList());
+            productWithGmfExempt.forEach( p -> {
+                p.setGmfExempt(false);
+                productRepository.save(p);
+            });
+        }
+        productExists.setGmfExempt(product.getGmfExempt());
         Product modifiedProduct = productRepository.save(productExists);
         return modifiedProduct;
     }
+
+    public String getAccountNumber(String initialData, String productNumber) {
+        StringBuffer sb = new StringBuffer(initialData);
+        int max = 10;
+        for (int i = 0; i < 8 - productNumber.length(); i++) {
+            sb.append("0");
+        }
+        sb.append(productNumber);
+        return sb.toString();
+    }
+
 
     private String getRandomNum(String initialData) {
         Random random = new Random();
@@ -96,7 +122,7 @@ public class ProductServiceImplementation implements ProductService {
         return sb.toString();
     }
 
-    private String generateAccountNumber(AccountType type) {
+    private String generateAccountNumber(AccountType type, Long accountNumber) {
         if (type == SAVINGS) {
             return getRandomNum("46");
         } else if (type == CHECKING) {

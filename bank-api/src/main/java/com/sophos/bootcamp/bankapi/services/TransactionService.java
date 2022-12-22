@@ -13,6 +13,4 @@ public interface TransactionService {
 
     List<Transaction> listOfTransactions ();
 
-    //TODO Recordar hacer la parte de actualizar el saldo disponible y saldo
-
 }

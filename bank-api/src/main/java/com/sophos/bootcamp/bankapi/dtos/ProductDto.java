@@ -41,8 +41,8 @@ public class ProductDto {
         clientCreator.setId(accountCreator);
         product.setAccountCreator(clientCreator);
         product.setAccountType(getAccountType(accountType));
-        product.setGmfExempt(gmfExempt);
         product.setModificationUser("admin");
+        product.setGmfExempt(gmfExempt);
         return product;
     }
 
