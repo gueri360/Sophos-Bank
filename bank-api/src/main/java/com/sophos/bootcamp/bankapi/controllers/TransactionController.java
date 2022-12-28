@@ -22,16 +22,7 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<Transaction> createTransaction (@RequestBody TransactionDto transactionDto){
-        Transaction transactionCreated = transactionService.createTransaction(transactionDto.mapToDomain());
+        Transaction transactionCreated = transactionService.createTransaction(transactionDto.mapTransferToDomain());
         return new ResponseEntity<>(transactionCreated, HttpStatus.OK);
     }
-
-    @GetMapping
-    public ResponseEntity<List<Transaction>> getTransactions (){
-        return new ResponseEntity<>(transactionService.listOfTransactions(), HttpStatus.OK);
-    }
-
-
-
-
 }

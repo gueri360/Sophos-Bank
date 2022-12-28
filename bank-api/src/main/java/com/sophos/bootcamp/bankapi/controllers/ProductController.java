@@ -4,8 +4,10 @@ package com.sophos.bootcamp.bankapi.controllers;
 import com.sophos.bootcamp.bankapi.dtos.ProductDto;
 import com.sophos.bootcamp.bankapi.dtos.UpdateProductDto;
 import com.sophos.bootcamp.bankapi.entities.Product;
+import com.sophos.bootcamp.bankapi.entities.Transaction;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
 import com.sophos.bootcamp.bankapi.services.ProductService;
+import com.sophos.bootcamp.bankapi.services.TransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +19,11 @@ import java.util.List;
 public class ProductController {
 
     public final ProductService productService;
+    public final TransactionService transactionService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, TransactionService transactionService) {
         this.productService = productService;
+        this.transactionService = transactionService;
     }
 
     @PostMapping
@@ -35,6 +39,12 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
         return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<List<Transaction>> getTransactionByProductId(@PathVariable Long id) {
+        List<Transaction> allTransactionsByProductId = transactionService.listOfTransactions(id);
+        return new ResponseEntity<>(allTransactionsByProductId, HttpStatus.OK);
     }
 
     @PutMapping

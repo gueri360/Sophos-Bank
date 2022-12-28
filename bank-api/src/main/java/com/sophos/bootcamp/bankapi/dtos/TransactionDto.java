@@ -7,6 +7,8 @@ import com.sophos.bootcamp.bankapi.entities.enums.TransactionType;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
 import lombok.Data;
 
+import static com.sophos.bootcamp.bankapi.entities.enums.TransactionType.TRANSFER;
+
 
 @Data
 public class TransactionDto {
@@ -27,10 +29,13 @@ public class TransactionDto {
 
     private Double availableBalance;
 
-    public Transaction mapToDomain (){
+    public Transaction mapTransferToDomain(){
         Transaction transaction = new Transaction();
-        transaction.setTransactionType(getTransactionType(transactionType));
-        transaction.setMovementType(getMovementType(movementType));
+        TransactionType transactionType = getTransactionType(this.transactionType);
+        transaction.setTransactionType(transactionType);
+        if(TRANSFER.equals(transactionType)){
+            transaction.setMovementType(getMovementType(movementType));
+        }
         Product productCreatorRecipient = new Product();
         productCreatorRecipient.setId(recipient);
         transaction.setRecipient(productCreatorRecipient);

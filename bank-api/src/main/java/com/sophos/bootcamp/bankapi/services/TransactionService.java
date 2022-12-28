@@ -11,6 +11,6 @@ public interface TransactionService {
 
     Transaction createTransaction (Transaction transaction);
 
-    List<Transaction> listOfTransactions ();
+    List<Transaction> listOfTransactions (Long id);
 
 }

@@ -14,7 +14,7 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_id")
     private Long id;
-
+//TODO handle id_type with an enum: CC, CE, NIT, and Passport
     @Column(name = "id_type")
     private String idType;
 
@@ -32,7 +32,6 @@ public class Client {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
-
 
     @Column(name = "creation_date")
     private LocalDate creationDate;

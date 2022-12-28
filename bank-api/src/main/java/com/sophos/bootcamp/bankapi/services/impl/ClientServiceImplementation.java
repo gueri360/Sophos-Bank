@@ -36,11 +36,11 @@ public class ClientServiceImplementation implements ClientService {
     @Override
     public Client createClient(Client client) {
         //TODO make a verification to know if IdNumber has not been used before to create an account
-//        List<Client> findClientByIdNumber = clientRepository.findClientByIdNumber(client.getIdNumber());
-//        Boolean idDoesNotExistsInDb = findClientByIdNumber.stream()
-//                .filter(p -> p.getIdNumber() == client.getIdNumber())
-//                .collect(Collectors.toList()).isEmpty();
-        if (isClientOver18Yo(client.getDateOfBirth())) {
+        Optional<Client> clientOpt = clientRepository.findByIdNumber(client.getIdNumber());
+        if (clientOpt.isPresent()){
+            throw new BadRequestException("This client's id number: " + client.getIdNumber() + " already exists");
+        }
+        if (isClientOver18Yo(client.getDateOfBirth()) ) {
             client.setCreationDate(LocalDate.now());
             if (client.getNames().length() < 2 || client.getLastNames().length() < 2) {
                 throw new BadRequestException("This parameter must have more than 2 characters");
@@ -93,13 +93,6 @@ public class ClientServiceImplementation implements ClientService {
             return true;
         } else return false;
     }
-
-//    private Boolean doesClientExists(String idNumber) {
-//        List<Client> findClientByIdNumber = clientRepository.findClientByIdNumber(idNumber);
-//        Boolean filterClientByIdNumber = findClientByIdNumber.stream()
-//                .filter(p -> p.getIdNumber() == idNumber)
-//                .collect(Collectors.toList()).isEmpty();
-//    }
 
 
 }

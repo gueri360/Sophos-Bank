@@ -2,6 +2,7 @@ package com.sophos.bootcamp.bankapi.controllers;
 
 import com.sophos.bootcamp.bankapi.entities.Client;
 import com.sophos.bootcamp.bankapi.entities.Product;
+import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
 import com.sophos.bootcamp.bankapi.services.ClientService;
 import com.sophos.bootcamp.bankapi.services.ProductService;
 import org.springframework.http.HttpStatus;
@@ -47,7 +48,7 @@ public class ClientController {
     @PutMapping
     public ResponseEntity<Client> modifyClient(@RequestBody Client client) {
         if (client.getId() == null) {
-            throw new IllegalArgumentException("Please, do not provide an ID number, this has already been automatically created by the system");
+            throw new BadRequestException("Please, do not provide an ID number, this has already been automatically created by the system");
         }
         Client modifiedClient = clientService.modifyClient(client);
         return new ResponseEntity<>(modifiedClient, HttpStatus.OK);
@@ -61,5 +62,4 @@ public class ClientController {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
-
 }
