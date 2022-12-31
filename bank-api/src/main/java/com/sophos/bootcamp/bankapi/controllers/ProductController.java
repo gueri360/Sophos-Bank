@@ -1,8 +1,7 @@
 package com.sophos.bootcamp.bankapi.controllers;
 
 
-import com.sophos.bootcamp.bankapi.dtos.ProductDto;
-import com.sophos.bootcamp.bankapi.dtos.UpdateProductDto;
+import com.sophos.bootcamp.bankapi.dtos.*;
 import com.sophos.bootcamp.bankapi.entities.Product;
 import com.sophos.bootcamp.bankapi.entities.Transaction;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/product")
@@ -26,7 +26,7 @@ public class ProductController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Product> createProduct(@RequestBody ProductDto productDto) {
         if (productDto.getId() != null) {
             throw new IllegalArgumentException("Do not provide an ID as it is automatically created by the system");
@@ -36,18 +36,26 @@ public class ProductController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<Product>> getProductById(@PathVariable Long id){
+        Optional<Product> productById = productService.getProductById(id);
+        return new ResponseEntity<>(productById, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
     public ResponseEntity<List<Product>> getAllProducts() {
         return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/transactions")
-    public ResponseEntity<List<Transaction>> getTransactionByProductId(@PathVariable Long id) {
+    public ResponseEntity<List<TransactionResultDto>> getTransactionByProductId(@PathVariable Long id) {
         List<Transaction> allTransactionsByProductId = transactionService.listOfTransactions(id);
-        return new ResponseEntity<>(allTransactionsByProductId, HttpStatus.OK);
+        TransactionsByProduct transactionsByProduct = new TransactionsByProduct();
+        List<TransactionResultDto> filteredList = transactionsByProduct.mapToDto(allTransactionsByProductId, id);
+        return new ResponseEntity<>(filteredList, HttpStatus.OK);
     }
 
-    @PutMapping
+    @PutMapping("/modify")
     public ResponseEntity<Product> modifyProduct(@RequestBody UpdateProductDto product) {
         if (product.getId() == null) {
             throw new BadRequestException("This product isn't listed in our system");

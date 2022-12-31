@@ -1,7 +1,7 @@
 package com.sophos.bootcamp.bankapi.entities.enums;
 
 public enum MovementType {
-    CREDIT("CREDIT"), DEBIT("DEBIT");
+    CREDIT("CREDIT"), DEBIT("DEBIT"), WITHDRAWAL("WITHDRAWAL"), DEPOSIT("DEPOSIT");
 
     private String status;
 

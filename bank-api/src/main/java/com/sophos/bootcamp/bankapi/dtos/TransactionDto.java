@@ -23,19 +23,10 @@ public class TransactionDto {
 
     private Double transactionAmount;
 
-    private String movementType;
-
-    private Double balance;
-
-    private Double availableBalance;
-
     public Transaction mapTransferToDomain(){
         Transaction transaction = new Transaction();
         TransactionType transactionType = getTransactionType(this.transactionType);
         transaction.setTransactionType(transactionType);
-        if(TRANSFER.equals(transactionType)){
-            transaction.setMovementType(getMovementType(movementType));
-        }
         Product productCreatorRecipient = new Product();
         productCreatorRecipient.setId(recipient);
         transaction.setRecipient(productCreatorRecipient);

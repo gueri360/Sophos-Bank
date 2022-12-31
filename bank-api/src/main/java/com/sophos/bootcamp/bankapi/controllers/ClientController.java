@@ -24,7 +24,7 @@ public class ClientController {
         this.productService = productService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Client> createClient(@RequestBody Client client) {
         if (client.getId() != null){
             throw new IllegalArgumentException("Do not provide ID number, this will be automatically created by the system");
@@ -39,13 +39,19 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
+    public ResponseEntity<Optional<Client>> getClientById(@PathVariable Long id){
+        Optional<Client> clientById = clientService.findClientById(id);
+        return new ResponseEntity<>(clientById, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/product")
     public ResponseEntity<List<Product>> getProductByClientId(@PathVariable Long id) {
         List<Product> allProductsByClientId = productService.getAllProductsByClientId(id);
         return new ResponseEntity<>(allProductsByClientId, HttpStatus.OK);
     }
 
 
-    @PutMapping
+    @PutMapping("/modify")
     public ResponseEntity<Client> modifyClient(@RequestBody Client client) {
         if (client.getId() == null) {
             throw new BadRequestException("Please, do not provide an ID number, this has already been automatically created by the system");
@@ -54,7 +60,7 @@ public class ClientController {
         return new ResponseEntity<>(modifiedClient, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity deleteClientById(@PathVariable("id") Long id){
         if (clientService.deleteClientById(id)){
             return new ResponseEntity(HttpStatus.OK);
@@ -62,4 +68,6 @@ public class ClientController {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
+
+
 }

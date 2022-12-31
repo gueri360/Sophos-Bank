@@ -3,6 +3,7 @@ package com.sophos.bootcamp.bankapi.services.impl;
 import com.sophos.bootcamp.bankapi.entities.Client;
 import com.sophos.bootcamp.bankapi.entities.Product;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
+import com.sophos.bootcamp.bankapi.exceptions.NotFoundException;
 import com.sophos.bootcamp.bankapi.repositories.ClientRepository;
 import com.sophos.bootcamp.bankapi.repositories.ProductRepository;
 import com.sophos.bootcamp.bankapi.services.ClientService;
@@ -30,12 +31,14 @@ public class ClientServiceImplementation implements ClientService {
 
     @Override
     public Optional<Client> findClientById(Long id) {
+        if (clientRepository.findById(id).isEmpty()){
+            throw new NotFoundException("Client does not exist");
+        }
         return clientRepository.findById(id);
     }
 
     @Override
     public Client createClient(Client client) {
-        //TODO make a verification to know if IdNumber has not been used before to create an account
         Optional<Client> clientOpt = clientRepository.findByIdNumber(client.getIdNumber());
         if (clientOpt.isPresent()){
             throw new BadRequestException("This client's id number: " + client.getIdNumber() + " already exists");
@@ -67,9 +70,6 @@ public class ClientServiceImplementation implements ClientService {
         }
     }
 
-
-    //Un cliente no podrá ser eliminado si tiene productos vinculados que no se
-    //encuentren cancelados.
     @Override
     public Boolean deleteClientById(Long id) {
         Optional<Client> findClientById = clientRepository.findById(id);

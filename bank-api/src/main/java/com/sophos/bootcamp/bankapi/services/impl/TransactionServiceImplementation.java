@@ -2,6 +2,7 @@ package com.sophos.bootcamp.bankapi.services.impl;
 
 import com.sophos.bootcamp.bankapi.entities.Product;
 import com.sophos.bootcamp.bankapi.entities.Transaction;
+import com.sophos.bootcamp.bankapi.entities.enums.MovementType;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
 import com.sophos.bootcamp.bankapi.exceptions.NotFoundException;
 import com.sophos.bootcamp.bankapi.repositories.ProductRepository;
@@ -13,12 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.CANCELLED;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.INACTIVE;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.CHECKING;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.SAVINGS;
 import static com.sophos.bootcamp.bankapi.entities.enums.TransactionType.*;
+import static com.sophos.bootcamp.bankapi.utils.BankUtils.getGmfCalculator;
 
 //TODO update Available balance
 @Service
@@ -50,6 +53,7 @@ public class TransactionServiceImplementation implements TransactionService {
         } else throw new BadRequestException("Transaction not supported");
     }
 
+    //TODO make the CREDIT movement type show for the recipient and DEBIT for the sender
     @Override
     public List<Transaction> listOfTransactions(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("This account does not exist"));
@@ -57,7 +61,6 @@ public class TransactionServiceImplementation implements TransactionService {
         return transactions;
     }
 
-    //TODO Remember to create the withdraw and deposit services
     private Transaction processTransferTransaction(Transaction transaction) {
         Product productSender = productRepository.findById(transaction.getSender().getId())
                 .orElseThrow(() -> new NotFoundException("This product does not exist"));
@@ -65,13 +68,16 @@ public class TransactionServiceImplementation implements TransactionService {
                 .orElseThrow(() -> new NotFoundException("This product does not exist"));
         transaction.setModificationDate(new Date());
         Double transactionAmount = transaction.getTransactionAmount();
-        if (productSender.getGmfExempt() == false) {
-            transactionAmount = getGmfCalculator(transactionAmount) + transactionAmount;
-        }
+
+        transactionAmount = getGmfCalculator(transactionAmount, productSender.getGmfExempt());
+
         Double senderBalanceModified = productSender.getBalance() - transactionAmount;
         Double recipientBalanceModified = productRecipient.getBalance() + transactionAmount;
         productSender.setBalance(senderBalanceModified);
         productRecipient.setBalance(recipientBalanceModified);
+        transaction.setRecipientBalance(recipientBalanceModified);
+        transaction.setSenderBalance(senderBalanceModified);
+
         if (SAVINGS.equals(productSender.getAccountType()) && (senderBalanceModified < 0)) {
             throw new BadRequestException("Insufficient funds");
         }
@@ -117,9 +123,7 @@ public class TransactionServiceImplementation implements TransactionService {
             throw new BadRequestException("This account is cancelled");
         }
 
-        if (productSender.getGmfExempt() == false) {
-            withdrawalAmount = getGmfCalculator(withdrawalAmount) + withdrawalAmount;
-        }
+        withdrawalAmount = getGmfCalculator(withdrawalAmount, productSender.getGmfExempt());
 
         Double senderBalanceModified = productSender.getBalance() - withdrawalAmount;
 
@@ -133,6 +137,7 @@ public class TransactionServiceImplementation implements TransactionService {
         productSender.setBalance(senderBalanceModified);
         transaction.setSender(productSender);
         transaction.setRecipient(null);
+        transaction.setMovementType(MovementType.WITHDRAWAL);
         productRepository.save(transaction.getSender());
         Transaction createdTransaction = transactionRepository.save(transaction);
         return createdTransaction;
@@ -150,14 +155,10 @@ public class TransactionServiceImplementation implements TransactionService {
         productRecipient.setBalance(recipientBalanceModified);
         transaction.setRecipient(productRecipient);
         transaction.setSender(null);
+        transaction.setMovementType(MovementType.DEPOSIT);
         productRepository.save(transaction.getRecipient());
         Transaction createdTransaction = transactionRepository.save(transaction);
         return createdTransaction;
-    }
-
-    private Double getGmfCalculator(Double transactionAmount) {
-        double gmf = transactionAmount / 1000 * 4;
-        return gmf;
     }
 
 }

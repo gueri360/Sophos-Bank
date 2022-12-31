@@ -1,5 +1,6 @@
 package com.sophos.bootcamp.bankapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sophos.bootcamp.bankapi.entities.converters.MovementTypeConverter;
 import com.sophos.bootcamp.bankapi.entities.converters.TransactionTypeConverter;
 import com.sophos.bootcamp.bankapi.entities.enums.MovementType;
@@ -26,6 +27,7 @@ public class Transaction {
 
 
     @Column(name = "modification_date")
+    @JsonFormat(pattern = "yyyy/MM/dd")
     private Date modificationDate;
 
     @Convert ( converter = TransactionTypeConverter.class)
@@ -41,6 +43,13 @@ public class Transaction {
     @Convert ( converter = MovementTypeConverter.class)
     @Column(name = "movement_type")
     private MovementType movementType;
+
+
+    @Column(name = "sender_balance")
+    private Double senderBalance;
+
+    @Column(name = "recipient_balance")
+    private Double recipientBalance;
 
     public Transaction() {
     }

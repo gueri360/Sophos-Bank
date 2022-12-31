@@ -70,7 +70,9 @@ public class ProductServiceImplementation implements ProductService {
     }
     @Override
     public Optional<Product> getProductById(Long id) {
-        productRepository.findAllByAccountCreatorId(id);
+        if (productRepository.findById(id).isEmpty()){
+            throw new NotFoundException("Product does not exist");
+        }
         return productRepository.findById(id);
     }
 
