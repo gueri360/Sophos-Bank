@@ -79,7 +79,7 @@ public class ProductServiceImplementation implements ProductService {
     @Override
     @Transactional
     public Product modifyProduct(Product product) {
-        Product productExists = productRepository.findById(product.getId()).orElseThrow(() -> new NotFoundException("Product is not in DBs"));
+        Product productExists = productRepository.findById(product.getId()).orElseThrow(() -> new NotFoundException("Product is not in system"));
         if (CANCELLED.equals(product.getAccountStatus()) && (productExists.getBalance() < 0 || productExists.getBalance() > 1)) {
             throw new BadRequestException("Account can not be closed as it has a balance");
         }
@@ -111,24 +111,11 @@ public class ProductServiceImplementation implements ProductService {
         return sb.toString();
     }
 
-
-    private String getRandomNum(String initialData) {
-        Random random = new Random();
-        StringBuffer sb = new StringBuffer(initialData);
-        int max = 10;
-        for (int i = 0; i < 8; i++) {
-            int randomized = random.nextInt(max);
-            sb.append(randomized);
-        }
-
-        return sb.toString();
-    }
-
-    private String generateAccountNumber(AccountType type, Long accountNumber) {
+    private String generateAccountNumber(AccountType type, Long productId) {
         if (type == SAVINGS) {
-            return getRandomNum("46");
+            return getAccountNumber("46", productId.toString());
         } else if (type == CHECKING) {
-            return getRandomNum("23");
+            return getAccountNumber("23", productId.toString());
         }
         return "Not supported type";
     }

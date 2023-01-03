@@ -14,9 +14,7 @@ import static com.sophos.bootcamp.bankapi.entities.enums.TransactionType.TRANSFE
 @Data
 public class TransactionsByProduct {
 
-    public List<TransactionDto> transactionDtos;
-
-    public List<TransactionResultDto> mapToDto(List<Transaction> transactions, Long productId) {
+    public static List<TransactionResultDto> mapToDto(List<Transaction> transactions, Long productId) {
         return transactions.stream()
                 .map(tx -> {
                     TransactionResultDto transactionDto = new TransactionResultDto();
@@ -24,7 +22,6 @@ public class TransactionsByProduct {
                     transactionDto.setTransactionType(tx.getTransactionType().getStatus());
                     transactionDto.setDescription(tx.getDescription());
                     transactionDto.setTransactionAmount(tx.getTransactionAmount());
-                    transactionDto.setMovementType(tx.getMovementType().getStatus());
                     transactionDto.setBalance(tx.getSenderBalance());
                     if (TRANSFER.equals(tx.getTransactionType())) {
                         if (tx.getRecipient().equals(productId)) {

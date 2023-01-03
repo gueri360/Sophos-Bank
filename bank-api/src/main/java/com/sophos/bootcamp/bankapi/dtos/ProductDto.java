@@ -34,32 +34,34 @@ public class ProductDto {
 
     private String modificationUser;
 
-    public Product mapToDomain (){
+    public Product mapToDomain() {
         Product product = new Product();
-        product.setAccountStatus(getAccountStatus(accountStatus));
         Client clientCreator = new Client();
         clientCreator.setId(accountCreator);
         product.setAccountCreator(clientCreator);
         product.setAccountType(getAccountType(accountType));
+        if (product.getAccountType().equals(AccountType.SAVINGS)) {
+            product.setAccountStatus(AccountStatus.ACTIVE);
+        } else {
+            product.setAccountStatus(getAccountStatus(accountStatus));
+        }
         product.setModificationUser("admin");
         product.setGmfExempt(gmfExempt);
         return product;
     }
 
-    private AccountStatus getAccountStatus (String accountStatus){
+    private AccountStatus getAccountStatus(String accountStatus) {
         try {
             return AccountStatus.valueOf(accountStatus);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new BadRequestException("Account Status Not Supported");
         }
     }
 
-    private AccountType getAccountType (String accountType){
+    private AccountType getAccountType(String accountType) {
         try {
             return AccountType.valueOf(accountType);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new BadRequestException("Account Type Not Supported");
         }
     }

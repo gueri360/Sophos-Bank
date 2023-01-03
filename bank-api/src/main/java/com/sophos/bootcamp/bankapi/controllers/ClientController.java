@@ -1,5 +1,6 @@
 package com.sophos.bootcamp.bankapi.controllers;
 
+import com.sophos.bootcamp.bankapi.dtos.UpdateClientDto;
 import com.sophos.bootcamp.bankapi.entities.Client;
 import com.sophos.bootcamp.bankapi.entities.Product;
 import com.sophos.bootcamp.bankapi.exceptions.BadRequestException;
@@ -52,14 +53,15 @@ public class ClientController {
 
 
     @PutMapping("/modify")
-    public ResponseEntity<Client> modifyClient(@RequestBody Client client) {
+    public ResponseEntity<Client> modifyClient(@RequestBody UpdateClientDto client) {
         if (client.getId() == null) {
             throw new BadRequestException("Please, do not provide an ID number, this has already been automatically created by the system");
         }
-        Client modifiedClient = clientService.modifyClient(client);
+        Client modifiedClient = clientService.modifyClient(client.mapToDto());
         return new ResponseEntity<>(modifiedClient, HttpStatus.OK);
     }
 
+    //TODO soft delete
     @DeleteMapping("/{id}/delete")
     public ResponseEntity deleteClientById(@PathVariable("id") Long id){
         if (clientService.deleteClientById(id)){

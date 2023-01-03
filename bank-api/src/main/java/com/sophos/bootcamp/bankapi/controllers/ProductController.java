@@ -50,8 +50,7 @@ public class ProductController {
     @GetMapping("/{id}/transactions")
     public ResponseEntity<List<TransactionResultDto>> getTransactionByProductId(@PathVariable Long id) {
         List<Transaction> allTransactionsByProductId = transactionService.listOfTransactions(id);
-        TransactionsByProduct transactionsByProduct = new TransactionsByProduct();
-        List<TransactionResultDto> filteredList = transactionsByProduct.mapToDto(allTransactionsByProductId, id);
+        List<TransactionResultDto> filteredList = TransactionsByProduct.mapToDto(allTransactionsByProductId, id);
         return new ResponseEntity<>(filteredList, HttpStatus.OK);
     }
 

@@ -56,8 +56,8 @@ public class TransactionServiceImplementation implements TransactionService {
     //TODO make the CREDIT movement type show for the recipient and DEBIT for the sender
     @Override
     public List<Transaction> listOfTransactions(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("This account does not exist"));
-        List<Transaction> transactions = transactionRepository.findAllBySenderIdOrRecipientId(product.getId());
+        productRepository.findById(id).orElseThrow(() -> new NotFoundException("This account does not exist"));
+        List<Transaction> transactions = transactionRepository.findAllBySenderIdOrRecipientId(id);
         return transactions;
     }
 
@@ -101,6 +101,7 @@ public class TransactionServiceImplementation implements TransactionService {
             productRecipient.setAvailableBalance(productRecipient.getBalance());
         }
 
+        transaction.setMovementType(MovementType.DEBIT);
         transaction.setSender(productSender);
         transaction.setRecipient(productRecipient);
         productRepository.save(transaction.getSender());
@@ -138,6 +139,7 @@ public class TransactionServiceImplementation implements TransactionService {
         transaction.setSender(productSender);
         transaction.setRecipient(null);
         transaction.setMovementType(MovementType.WITHDRAWAL);
+        transaction.setSenderBalance(senderBalanceModified);
         productRepository.save(transaction.getSender());
         Transaction createdTransaction = transactionRepository.save(transaction);
         return createdTransaction;
@@ -156,6 +158,7 @@ public class TransactionServiceImplementation implements TransactionService {
         transaction.setRecipient(productRecipient);
         transaction.setSender(null);
         transaction.setMovementType(MovementType.DEPOSIT);
+        transaction.setRecipientBalance(recipientBalanceModified);
         productRepository.save(transaction.getRecipient());
         Transaction createdTransaction = transactionRepository.save(transaction);
         return createdTransaction;

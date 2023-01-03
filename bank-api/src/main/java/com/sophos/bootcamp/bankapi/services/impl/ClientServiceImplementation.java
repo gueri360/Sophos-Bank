@@ -7,10 +7,12 @@ import com.sophos.bootcamp.bankapi.exceptions.NotFoundException;
 import com.sophos.bootcamp.bankapi.repositories.ClientRepository;
 import com.sophos.bootcamp.bankapi.repositories.ProductRepository;
 import com.sophos.bootcamp.bankapi.services.ClientService;
+import com.sophos.bootcamp.bankapi.utils.BankUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,14 +45,22 @@ public class ClientServiceImplementation implements ClientService {
         if (clientOpt.isPresent()){
             throw new BadRequestException("This client's id number: " + client.getIdNumber() + " already exists");
         }
-        if (isClientOver18Yo(client.getDateOfBirth()) ) {
+        client.setEmailAddress(client.getEmailAddress().toLowerCase());
+        Boolean emailValidator = BankUtils.validateEmailAddress(client.getEmailAddress());
+        if (isClientOver18Yo(client.getDateOfBirth())) {
             client.setCreationDate(LocalDate.now());
             if (client.getNames().length() < 2 || client.getLastNames().length() < 2) {
                 throw new BadRequestException("This parameter must have more than 2 characters");
             }
+            if(!emailValidator){
+                throw new BadRequestException("Email address is incorrect");
+            }
+            client.setModificationDate(new Date());
+            client.setCreationDate(LocalDate.now());
             Client clientSaved = clientRepository.save(client);
             return clientSaved;
         } else throw new BadRequestException("Client is underage");
+
     }
 
     @Override
@@ -61,13 +71,16 @@ public class ClientServiceImplementation implements ClientService {
     @Override
     //TODO create a DTO for client modification
     public Client modifyClient(Client client) {
-        Optional<Client> verifyId = clientRepository.findById(client.getId());
-        if (verifyId.isPresent()) {
-            Client clientModified = clientRepository.save(client);
-            return clientModified;
-        } else {
-            throw new BadRequestException("This Client is not registered in our system, please verify the id or create a Client");
+        Client clientExists = clientRepository.findById(client.getId()).orElseThrow(() -> new NotFoundException("This client does not exist in the system"));
+        clientExists.setNames(client.getNames());
+        clientExists.setLastNames(client.getLastNames());
+        Boolean emailValidator = BankUtils.validateEmailAddress(client.getEmailAddress());
+        if(!emailValidator){
+            throw new BadRequestException("Please provide a correct email pattern");
         }
+        clientExists.setEmailAddress(client.getEmailAddress());
+        Client modifiedClient = clientRepository.save(clientExists);
+        return modifiedClient;
     }
 
     @Override

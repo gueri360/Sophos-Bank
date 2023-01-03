@@ -14,6 +14,6 @@ public class MovementTypeConverter implements AttributeConverter<MovementType, S
 
     @Override
     public MovementType convertToEntityAttribute(String s) {
-        return MovementType.valueOf(s);
+        return Optional.ofNullable(s).map(m -> MovementType.valueOf(m)).orElse(null);
     }
 }
