@@ -14,13 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.CANCELLED;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.INACTIVE;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.CHECKING;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.SAVINGS;
 import static com.sophos.bootcamp.bankapi.entities.enums.TransactionType.*;
+import static com.sophos.bootcamp.bankapi.utils.BankUtils.getAvailableBalance;
 import static com.sophos.bootcamp.bankapi.utils.BankUtils.getGmfCalculator;
 
 //TODO update Available balance
@@ -74,7 +74,9 @@ public class TransactionServiceImplementation implements TransactionService {
         Double senderBalanceModified = productSender.getBalance() - transactionAmount;
         Double recipientBalanceModified = productRecipient.getBalance() + transactionAmount;
         productSender.setBalance(senderBalanceModified);
+        productSender.setAvailableBalance(getAvailableBalance(senderBalanceModified, productSender.getGmfExempt(), productSender.getAccountType()));
         productRecipient.setBalance(recipientBalanceModified);
+        productRecipient.setAvailableBalance(getAvailableBalance(recipientBalanceModified, productRecipient.getGmfExempt(), productRecipient.getAccountType()));
         transaction.setRecipientBalance(recipientBalanceModified);
         transaction.setSenderBalance(senderBalanceModified);
 
@@ -94,11 +96,11 @@ public class TransactionServiceImplementation implements TransactionService {
             throw new BadRequestException("This account can not complete credit transactions");
         }
         if (SAVINGS.equals(productSender.getAccountType()) || CHECKING.equals(productSender.getAccountType())) {
-            productSender.setAvailableBalance(productSender.getBalance());
+            productSender.setAvailableBalance(getAvailableBalance(productSender.getBalance(), productSender.getGmfExempt(), productSender.getAccountType()));
         }
 
         if (SAVINGS.equals(productRecipient.getAccountType()) || CHECKING.equals(productRecipient.getAccountType())) {
-            productRecipient.setAvailableBalance(productRecipient.getBalance());
+            productRecipient.setAvailableBalance(getAvailableBalance(productRecipient.getBalance(), productRecipient.getGmfExempt(), productRecipient.getAccountType()));
         }
 
         transaction.setMovementType(MovementType.DEBIT);
@@ -136,9 +138,10 @@ public class TransactionServiceImplementation implements TransactionService {
         }
 
         productSender.setBalance(senderBalanceModified);
+        productSender.setAvailableBalance(getAvailableBalance(senderBalanceModified, productSender.getGmfExempt(), productSender.getAccountType()));
         transaction.setSender(productSender);
         transaction.setRecipient(null);
-        transaction.setMovementType(MovementType.WITHDRAWAL);
+        transaction.setMovementType(MovementType.DEBIT);
         transaction.setSenderBalance(senderBalanceModified);
         productRepository.save(transaction.getSender());
         Transaction createdTransaction = transactionRepository.save(transaction);
@@ -155,9 +158,10 @@ public class TransactionServiceImplementation implements TransactionService {
         }
         Double recipientBalanceModified = productRecipient.getBalance() + depositAmount;
         productRecipient.setBalance(recipientBalanceModified);
+        productRecipient.setAvailableBalance(getAvailableBalance(recipientBalanceModified, productRecipient.getGmfExempt(), productRecipient.getAccountType()));
         transaction.setRecipient(productRecipient);
         transaction.setSender(null);
-        transaction.setMovementType(MovementType.DEPOSIT);
+        transaction.setMovementType(MovementType.CREDIT);
         transaction.setRecipientBalance(recipientBalanceModified);
         productRepository.save(transaction.getRecipient());
         Transaction createdTransaction = transactionRepository.save(transaction);

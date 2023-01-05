@@ -1,9 +1,15 @@
 package com.sophos.bootcamp.bankapi.utils;
 
+import com.sophos.bootcamp.bankapi.entities.enums.AccountType;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.CHECKING;
+
 public class BankUtils {
+
+    public static Double AVAILABLE_BALANCE_CHECKING_ACCOUNT = 3000000d;
 
     public static Double getGmfCalculator(Double transactionAmount, Boolean gmfExempt) {
         if (gmfExempt == false) {
@@ -12,11 +18,16 @@ public class BankUtils {
         } else return transactionAmount;
     }
 
-    public static Double getAvailableBalance(Double transactionAmount, Boolean gmfExempt) {
+    public static Double getAvailableBalance(Double balance, Boolean gmfExempt, AccountType accountType) {
         if (gmfExempt == false) {
-            double gmf = transactionAmount / 1000 * 4;
-            return gmf - transactionAmount;
-        } else return transactionAmount;
+            if(CHECKING.equals(accountType)){
+                double gmf = (AVAILABLE_BALANCE_CHECKING_ACCOUNT + balance) / 1000 * 4;
+                return AVAILABLE_BALANCE_CHECKING_ACCOUNT + balance - gmf;
+            } else {
+                double gmf = balance / 1000 * 4;
+                return balance - gmf;
+            }
+        } else return balance;
     }
 
     public static Boolean validateEmailAddress(String email) {

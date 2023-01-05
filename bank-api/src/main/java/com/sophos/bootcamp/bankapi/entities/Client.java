@@ -1,6 +1,7 @@
 package com.sophos.bootcamp.bankapi.entities;
 
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_id")
     private Long id;
-//TODO handle id_type with an enum: CC, CE, NIT, and Passport
+
     @Column(name = "id_type")
     private String idType;
 
@@ -45,9 +46,14 @@ public class Client {
     @Column(name = "modification_user")
     private String modificationUser;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+
     public Client() {
         this.clientCreator = "Admin";
         this.modificationUser = "Admin";
+        this.isDeleted = false;
     }
 
 

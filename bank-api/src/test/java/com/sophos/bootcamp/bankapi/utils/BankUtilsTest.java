@@ -16,4 +16,13 @@ class BankUtilsTest {
         assertFalse(BankUtils.validateEmailAddress("acm5pt@gmail."));
 
     }
+
+    @Test
+    void getGmfCalculator() {
+
+        assertEquals(100000, BankUtils.getGmfCalculator(100000d, true));
+        assertEquals(100400, BankUtils.getGmfCalculator(100000d, false));
+        assertEquals(-100400, BankUtils.getGmfCalculator(-100000d, false));
+
+    }
 }

@@ -7,9 +7,8 @@ import lombok.Data;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.sophos.bootcamp.bankapi.entities.enums.MovementType.CREDIT;
-import static com.sophos.bootcamp.bankapi.entities.enums.MovementType.DEBIT;
-import static com.sophos.bootcamp.bankapi.entities.enums.TransactionType.TRANSFER;
+import static com.sophos.bootcamp.bankapi.entities.enums.MovementType.*;
+import static com.sophos.bootcamp.bankapi.entities.enums.TransactionType.*;
 
 @Data
 public class TransactionsByProduct {
@@ -27,12 +26,25 @@ public class TransactionsByProduct {
                         if (tx.getRecipient().equals(productId)) {
                             transactionDto.setMovementType(CREDIT.getStatus());
                             transactionDto.setBalance(tx.getRecipientBalance());
-                            transactionDto.setAvailableBalance(BankUtils.getAvailableBalance(tx.getRecipientBalance(), tx.getRecipient().getGmfExempt()));
+                            transactionDto.setAvailableBalance(BankUtils.getAvailableBalance(tx.getRecipientBalance(),
+                                    tx.getRecipient().getGmfExempt(), tx.getRecipient().getAccountType()));
                         } else {
                             transactionDto.setMovementType(DEBIT.getStatus());
                             transactionDto.setBalance(tx.getSenderBalance());
-                            transactionDto.setAvailableBalance(BankUtils.getAvailableBalance(tx.getSenderBalance(), tx.getSender().getGmfExempt()));
+                            transactionDto.setAvailableBalance(BankUtils.getAvailableBalance(tx.getSenderBalance(),
+                                    tx.getSender().getGmfExempt(), tx.getSender().getAccountType()));
                         }
+                    } else if (DEPOSIT.equals(tx.getTransactionType())){
+                        transactionDto.setMovementType(CREDIT.getStatus());
+                        transactionDto.setBalance(tx.getRecipientBalance());
+                        transactionDto.setAvailableBalance(BankUtils.getAvailableBalance(tx.getRecipientBalance(),
+                                tx.getRecipient().getGmfExempt(), tx.getRecipient().getAccountType()));
+
+                    } else if (WITHDRAWAL.equals(tx.getTransactionType())){
+                        transactionDto.setMovementType(DEBIT.getStatus());
+                        transactionDto.setBalance(tx.getSenderBalance());
+                        transactionDto.setAvailableBalance(BankUtils.getAvailableBalance(tx.getSenderBalance(),
+                                tx.getSender().getGmfExempt(), tx.getSender().getAccountType()));
                     }
                     return transactionDto;
                 })

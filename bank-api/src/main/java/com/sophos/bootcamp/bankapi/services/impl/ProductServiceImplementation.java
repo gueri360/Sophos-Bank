@@ -9,6 +9,7 @@ import com.sophos.bootcamp.bankapi.exceptions.NotFoundException;
 import com.sophos.bootcamp.bankapi.repositories.ClientRepository;
 import com.sophos.bootcamp.bankapi.repositories.ProductRepository;
 import com.sophos.bootcamp.bankapi.services.ProductService;
+import com.sophos.bootcamp.bankapi.utils.BankUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.CANCELLED;
+import static com.sophos.bootcamp.bankapi.entities.enums.AccountStatus.*;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.CHECKING;
 import static com.sophos.bootcamp.bankapi.entities.enums.AccountType.SAVINGS;
 
@@ -47,7 +48,7 @@ public class ProductServiceImplementation implements ProductService {
         product.setAccountCreator(findClient);
         product.setAccountStatus(AccountStatus.ACTIVE);
         product.setBalance(0.0);
-        product.setAvailableBalance(0.0);
+        product.setAvailableBalance(BankUtils.getAvailableBalance(0.0, product.getGmfExempt(), product.getAccountType()));
         product.setCreationDate(new Date());
         product.setModificationDate(new Date());
         Product createdProduct = productRepository.save(product);
@@ -79,13 +80,18 @@ public class ProductServiceImplementation implements ProductService {
     @Override
     @Transactional
     public Product modifyProduct(Product product) {
-        Product productExists = productRepository.findById(product.getId()).orElseThrow(() -> new NotFoundException("Product is not in system"));
+        Product productExists = productRepository.findById(product.getId()).orElseThrow(()
+                -> new NotFoundException("Product is not in system"));
+        if (CANCELLED.equals(productExists.getAccountStatus())){
+            throw new BadRequestException("This account can not be modified as it has already been already cancelled");
+        }
         if (CANCELLED.equals(product.getAccountStatus()) && (productExists.getBalance() < 0 || productExists.getBalance() > 1)) {
             throw new BadRequestException("Account can not be closed as it has a balance");
         }
+
         productExists.setAccountStatus(product.getAccountStatus());
         //Validates if Client has any products with GMF exempt
-        if (product.getGmfExempt() && product.getGmfExempt() != productExists.getGmfExempt()){
+        if (product.getGmfExempt() && (product.getGmfExempt() != productExists.getGmfExempt())){
             List<Product> productsByClient = productRepository.findAllByAccountCreatorId(productExists.getAccountCreator().getId());
             List<Product> productWithGmfExempt = productsByClient.stream()
                     .filter(p -> p.getId() != productExists.getId())
@@ -93,9 +99,15 @@ public class ProductServiceImplementation implements ProductService {
                     .collect(Collectors.toList());
             productWithGmfExempt.forEach( p -> {
                 p.setGmfExempt(false);
+                p.setAvailableBalance(BankUtils.getAvailableBalance(p.getBalance(), false, p.getAccountType()));
                 productRepository.save(p);
             });
         }
+        if (CANCELLED.equals(product.getAccountStatus())){
+            product.setGmfExempt(false);
+        }
+        productExists.setAvailableBalance(BankUtils.getAvailableBalance(productExists.getBalance(), product.getGmfExempt(),
+                product.getAccountType()));
         productExists.setGmfExempt(product.getGmfExempt());
         Product modifiedProduct = productRepository.save(productExists);
         return modifiedProduct;

@@ -33,7 +33,7 @@ public class ClientServiceImplementation implements ClientService {
 
     @Override
     public Optional<Client> findClientById(Long id) {
-        if (clientRepository.findById(id).isEmpty()){
+        if (clientRepository.findById(id).isEmpty()) {
             throw new NotFoundException("Client does not exist");
         }
         return clientRepository.findById(id);
@@ -42,7 +42,7 @@ public class ClientServiceImplementation implements ClientService {
     @Override
     public Client createClient(Client client) {
         Optional<Client> clientOpt = clientRepository.findByIdNumber(client.getIdNumber());
-        if (clientOpt.isPresent()){
+        if (clientOpt.isPresent()) {
             throw new BadRequestException("This client's id number: " + client.getIdNumber() + " already exists");
         }
         client.setEmailAddress(client.getEmailAddress().toLowerCase());
@@ -52,7 +52,7 @@ public class ClientServiceImplementation implements ClientService {
             if (client.getNames().length() < 2 || client.getLastNames().length() < 2) {
                 throw new BadRequestException("This parameter must have more than 2 characters");
             }
-            if(!emailValidator){
+            if (!emailValidator) {
                 throw new BadRequestException("Email address is incorrect");
             }
             client.setModificationDate(new Date());
@@ -75,7 +75,7 @@ public class ClientServiceImplementation implements ClientService {
         clientExists.setNames(client.getNames());
         clientExists.setLastNames(client.getLastNames());
         Boolean emailValidator = BankUtils.validateEmailAddress(client.getEmailAddress());
-        if(!emailValidator){
+        if (!emailValidator) {
             throw new BadRequestException("Please provide a correct email pattern");
         }
         clientExists.setEmailAddress(client.getEmailAddress());
@@ -85,20 +85,19 @@ public class ClientServiceImplementation implements ClientService {
 
     @Override
     public Boolean deleteClientById(Long id) {
-        Optional<Client> findClientById = clientRepository.findById(id);
-        if (findClientById.isPresent()) {
-            List<Product> products = productRepository.findAllByAccountCreatorId(id);
-            List<Product> cancelledProducts = products.stream()
-                    .filter((p) -> p.getAccountStatus() == CANCELLED)
-                    .collect(Collectors.toList());
-            if (products.size() != cancelledProducts.size()) {
-                throw new BadRequestException("All accounts must be cancelled before removing client");
-            }
-            clientRepository.deleteById(id);
-            return true;
+        Client findClientById = clientRepository.findById(id).orElseThrow(() -> new NotFoundException("This client does not exist"));
+        List<Product> products = productRepository.findAllByAccountCreatorId(findClientById.getId());
+        List<Product> cancelledProducts = products.stream()
+                .filter((p) -> p.getAccountStatus() == CANCELLED)
+                .collect(Collectors.toList());
+        if (products.size() != cancelledProducts.size()) {
+            throw new BadRequestException("All accounts must be cancelled before removing client");
         }
-        return false;
+        findClientById.setIsDeleted(true);
+        clientRepository.save(findClientById);
+        return true;
     }
+
 
     private Boolean isClientOver18Yo(LocalDate dateOfBirth) {
         int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
