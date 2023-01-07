@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/product")
+@CrossOrigin(origins = "localhost:4200")
 public class ProductController {
 
     public final ProductService productService;
@@ -26,7 +27,7 @@ public class ProductController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody ProductDto productDto) {
         if (productDto.getId() != null) {
             throw new IllegalArgumentException("Do not provide an ID as it is automatically created by the system");
@@ -54,7 +55,7 @@ public class ProductController {
         return new ResponseEntity<>(filteredList, HttpStatus.OK);
     }
 
-    @PutMapping("/modify")
+    @PutMapping
     public ResponseEntity<Product> modifyProduct(@RequestBody UpdateProductDto product) {
         if (product.getId() == null) {
             throw new BadRequestException("This product isn't listed in our system");

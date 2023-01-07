@@ -25,7 +25,6 @@ public class Transaction {
     @JoinColumn(name = "recipient_id",referencedColumnName = "product_id")
     private Product recipient;
 
-
     @Column(name = "modification_date")
     @JsonFormat(pattern = "yyyy/MM/dd")
     private Date modificationDate;

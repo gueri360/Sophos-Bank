@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/client")
+@CrossOrigin(origins = "localhost:4200")
 public class ClientController {
 
     private final ClientService clientService;
@@ -25,7 +26,7 @@ public class ClientController {
         this.productService = productService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Client> createClient(@RequestBody Client client) {
         if (client.getId() != null){
             throw new IllegalArgumentException("Do not provide ID number, this will be automatically created by the system");
@@ -51,8 +52,7 @@ public class ClientController {
         return new ResponseEntity<>(allProductsByClientId, HttpStatus.OK);
     }
 
-
-    @PutMapping("/modify")
+    @PutMapping
     public ResponseEntity<Client> modifyClient(@RequestBody UpdateClientDto client) {
         if (client.getId() == null) {
             throw new BadRequestException("Please, do not provide an ID number, this has already been automatically created by the system");
@@ -61,7 +61,6 @@ public class ClientController {
         return new ResponseEntity<>(modifiedClient, HttpStatus.OK);
     }
 
-    //TODO soft delete
     @DeleteMapping("/{id}/delete")
     public ResponseEntity deleteClientById(@PathVariable("id") Long id){
         if (clientService.deleteClientById(id)){
